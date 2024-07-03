@@ -172,6 +172,7 @@ function bootloader.initScreen(gpu, screen, rx, ry)
 end
 
 function bootloader.bootstrap()
+    if bootloader.runlevel ~= "init" then error("bootstrap can only be started with runlevel init", 0) end
 
     --natives позваляет получить доступ к нетронутым методами библиотек computer и component
     _G.natives = bootloader.dofile("/system/core/lib/natives.lua", bootloader.createEnv())
@@ -222,10 +223,10 @@ end
 function bootloader.runShell(path, ...)
     --запуск оболочки дистрибутива
     if require("filesystem").exists(path) then
-        bootloader.bootSplash("Starting The Shell...")
+        bootloader.bootSplash("Starting The BlueDroid...")
         assert(require("programs").load(path))(...)
     else
-        bootloader.bootSplash("Shell Does Not Exist. Press Enter To Continue.")
+        bootloader.bootSplash("!Kernel Panic!")
         bootloader.waitEnter()
     end
 end
@@ -456,11 +457,11 @@ if not params.noRecovery and (params.forceRecovery or not getRegistry().disableR
             recoveryScreen = params.forceRecovery
             playerNickname = ""
 
-            if #recoveryScreen == 0 then
+            if #recoveryScreen == 1 then
                 recoveryScreen = defaultScreen
             end
         else
-            bootloader.bootSplash("Press R to open recovery menu")
+            bootloader.bootSplash("Press R to open recovery mode")
             local startTime = computer.uptime()
             while computer.uptime() - startTime <= 1 do
                 local eventData = {computer.pullSignal(0.1)}
@@ -476,6 +477,26 @@ if not params.noRecovery and (params.forceRecovery or not getRegistry().disableR
                         end
                     end
                 end
+            end
+            ::exit::
+        end
+
+        if recoveryScreen then
+            bootloader.bootSplash("RECOVERY MODE")
+
+            local recoveryPath = bootloader.find("recovery.lua")
+            if recoveryPath then
+                if getRegistry().disableLogo then --если лого отключено, то экран не был инициализирован ранее, а значит его нада инициализировать сейчас
+                    bootloader.initScreen(gpu, recoveryScreen)
+                end
+                
+                local env = bootloader.createEnv()
+                env.bootloader = bootloader
+                assert(xpcall(assert(bootloader.loadfile(recoveryPath, nil, env)), debug.traceback, recoveryScreen, playerNickname, params))
+                computer.shutdown("fast")
+            else
+                bootloader.bootSplash("failed to open recovery. press enter to continue")
+                bootloader.waitEnter()
             end
         end
     end
@@ -522,4 +543,9 @@ if require and pcall then
     end
 end
 
+------------------------------------ error output
+
+if log_ok and not getRegistry().disableAutoReboot then --если удалось записать log то комп перезагрузиться, а если не удалось то передаст ошибку в bios
+    shutdown(true)
+end
 error(err, 0)
