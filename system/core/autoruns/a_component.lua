@@ -161,24 +161,7 @@ local function onComponentAdded(_, address, componentType)
             if address ~= prev.address then
                 --keyboards never replace primary keyboards unless the are the only keyboard on the primary screen
                 local current_screen = primaries.screen or (adding.screen and adding.screen.proxy)
-                --if there is not yet a screen, do not use this keyboard, it's not any better
                 if current_screen then
-                    -- the next phase is complicated
-                    -- there is already a screen and there is already a keyboard
-                    -- this keyboard is only better if this is a keyboard of the primary screen AND the current keyboard is not
-                    -- i don't think we can trust kb order (1st vs 2nd), 2nd could fire first
-                    -- but if there are two kbs on a screen, we can give preferred treatment to the first
-                    -- thus, assume 2nd is not attached for the purposes of primary kb
-                    -- and THUS, whichever (if either) is the 1st kb of the current screen
-                    -- this is only possible if
-                    -- 1. the only kb on the system (current) has no screen
-                    -- 2. a screen is added without a kb
-                    -- 3. this kb is added later manually
-
-                    -- prev is true when addr is not equal to the primary keyboard of the current screen -- meaning
-                    -- when addr is different, and thus it is not the primary keyboard, then we ignore this
-                    -- keyboard, and keep the previous
-                    -- prev is false means we should take this new keyboard
                     prev = address ~= current_screen.getKeyboards()[1]
                 end
             end
