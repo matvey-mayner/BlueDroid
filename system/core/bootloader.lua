@@ -448,7 +448,7 @@ end
 
 ------------------------------------ recovery
 
-if not params.noRecovery and (params.forceRecovery or not getRegistry().disableRecovery) then
+ --[[if not params.noRecovery and (params.forceRecovery or not getRegistry().disableRecovery) then
     local gpu = component.proxy(component.list("gpu")() or "")
     local defaultScreen = component.list("screen")()
     if gpu and defaultScreen then
@@ -457,7 +457,7 @@ if not params.noRecovery and (params.forceRecovery or not getRegistry().disableR
             recoveryScreen = params.forceRecovery
             playerNickname = ""
 
-            if #recoveryScreen == 1 then
+            if #recoveryScreen == 0 then
                 recoveryScreen = defaultScreen
             end
         else
@@ -500,7 +500,7 @@ if not params.noRecovery and (params.forceRecovery or not getRegistry().disableR
             end
         end
     end
-end
+end ]]--
 
 ------------------------------------ bootstrap
 
