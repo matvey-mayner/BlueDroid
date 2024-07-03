@@ -172,7 +172,6 @@ function bootloader.initScreen(gpu, screen, rx, ry)
 end
 
 function bootloader.bootstrap()
-    if bootloader.runlevel ~= "init" then error("bootstrap can only be started with runlevel init", 0) end
 
     --natives позваляет получить доступ к нетронутым методами библиотек computer и component
     _G.natives = bootloader.dofile("/system/core/lib/natives.lua", bootloader.createEnv())
@@ -478,26 +477,6 @@ if not params.noRecovery and (params.forceRecovery or not getRegistry().disableR
                     end
                 end
             end
-            ::exit::
-        end
-
-        if recoveryScreen then
-            bootloader.bootSplash("RECOVERY MENU")
-
-            local recoveryPath = bootloader.find("recovery.lua")
-            if recoveryPath then
-                if getRegistry().disableLogo then --если лого отключено, то экран не был инициализирован ранее, а значит его нада инициализировать сейчас
-                    bootloader.initScreen(gpu, recoveryScreen)
-                end
-                
-                local env = bootloader.createEnv()
-                env.bootloader = bootloader
-                assert(xpcall(assert(bootloader.loadfile(recoveryPath, nil, env)), debug.traceback, recoveryScreen, playerNickname, params))
-                computer.shutdown("fast")
-            else
-                bootloader.bootSplash("failed to open recovery. press enter to continue")
-                bootloader.waitEnter()
-            end
         end
     end
 end
@@ -543,9 +522,4 @@ if require and pcall then
     end
 end
 
------------------------------------- error output
-
-if log_ok and not getRegistry().disableAutoReboot then --если удалось записать log то комп перезагрузиться, а если не удалось то передаст ошибку в bios
-    shutdown(true)
-end
 error(err, 0)
