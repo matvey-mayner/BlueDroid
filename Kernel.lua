@@ -73,16 +73,7 @@ else
     else
         params = {}
     end
-    if tmpfs.exists("/bootloader/recovery") then
-        params.forceRecovery = readFile(tmpfs, "/bootloader/recovery")
-    end
-    if tmpfs.exists("/bootloader/unpackBootloader") then
-        params.unpackBootloader = unserialize(readFile(tmpfs, "/bootloader/unpackBootloader"))
-    end
-    if tmpfs.exists("/bootloader/noRecovery") then
-        params.noRecovery = false
-    end
-    bootargs = {params}
+    bootargs = {params.noRecovery = true}
 end
 
 tmpfs.remove(bootloaderSettingsPath)
@@ -92,7 +83,7 @@ tmpfs.remove(bootloaderSettingsPath)
 if bootproxy.exists(bootfile) then
     assert(load(assert(readFile(bootproxy, bootfile)), "=" .. bootfile, nil, _ENV))(table.unpack(bootargs))
 else
-    local lowLevelInitializer = "/OpenKernel_startup.lua" --может использоваться для запуска обновления системы
+    local lowLevelInitializer = "/OpenKernel_startup.lua"
     if bootproxy.exists(lowLevelInitializer) then
         assert(loadfile(bootproxy, lowLevelInitializer))()
     end
