@@ -89,7 +89,7 @@ local RedirectorList = {
         func = function()
             for sector, value in pairs(Sectors) do
                 if sector == "ax" then
-                    print(value)
+
                 end
             end
         end,
