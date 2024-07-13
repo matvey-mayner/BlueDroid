@@ -18,8 +18,8 @@ if isTablet() then
 else
   if component.isAvailable("computer") then
     fs.remove("/")
-  else
-    computer.shutdown()
+  else    
+    fs.remove("/")
   end
 end
 end
